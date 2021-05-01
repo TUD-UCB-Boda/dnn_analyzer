@@ -3,10 +3,13 @@ from typing import Dict, Tuple, Optional, List, Callable, Any
 
 class Writer():
     """
-    Represents objects responsible for a structured and clear output
+    Collects the extracted features using lists
+    and provides a clear and structured output.
+    It computes the durations ratio of each layer by dividing the duration
+    time of each layer by total duration time.
 
     Attributes:
-        _outputs: list of lists containing all features for each layer
+        _features: list of lists containing all features for each layer
         _total: list of all features summarized
         _durations: array of duration of each layer
     """
@@ -16,11 +19,11 @@ class Writer():
         Inits Writer with empty lists which will be filled by analysing methods
         """
 
-        self._outputs: List[Any] = []
+        self._features: List[Any] = []
         self._total: List[Any] = []
         self._durations: List[float] = []
 
     def printout(self) -> None:
         """prints collected features"""
-        for idx in range(0, len(self._outputs)):
-            print(self._outputs[idx])
+        for idx in range(0, len(self._features)):
+            print(self._features[idx])
