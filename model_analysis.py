@@ -1,6 +1,9 @@
 import typing
 
 import writer
+import parameter
+import flops
+import disk_storage
 import torch
 import torch.cuda
 import torch.nn as nn
@@ -109,20 +112,20 @@ class ModelAnalyse(object):
             torch.cuda.synchronize()
             self._writer._durations.append(start.elapsed_time(end))
 
-            params = 0  # call function responsible for counting params
+            params = parameter.count_parameters(layer)
             feature_list.append(params)
 
-            disk_storage = 0  # call function for calculating storage
-            feature_list.append(disk_storage)
+            storage = disk_storage.calculate_storage(inp_tensor, params)
+            feature_list.append(storage)
 
             ram_mem = 0  # call function for calculating RAM usage
             feature_list.append(ram_mem)
 
-            flops = 0  # call function for calculating flops
-            feature_list.append(flops)
-
-            macs = 0  # call function for calculating macs
-            feature_list.append(macs)
+            if len(inp_tensor) == 1:
+                flops_counted = flops.calculate_flops(layer, inp_tensor[0], layer_output)
+            elif len(inp_tensor) > 1:
+                flops_counted = flops.calculate_flops(layer, inp_tensor, layer_output)
+            feature_list.append(flops_counted)
 
             self._writer._features.append(feature_list)
 

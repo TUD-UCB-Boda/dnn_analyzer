@@ -22,8 +22,20 @@ class Writer():
         self._features: List[Any] = []
         self._total: List[Any] = []
         self._durations: List[float] = []
+        self._total_storage = 0
+        self._total_parameter = 0
+        self._total_flops = 0
 
     def printout(self) -> None:
         """prints collected features"""
         for idx in range(0, len(self._features)):
             print(self._features[idx])
+            self._total_parameter += self._features[idx][1]
+            self._total_storage += self._features[idx][2]
+            self._total_flops += self._features[idx][4]
+
+        self._total_storage = self._total_storage / (8 * 10 ** 6)
+
+        print("Total Storage: ", round(self._total_storage, 2), "MByte")
+        print("Total Parameters: ", self._total_parameter)
+        print("Total number of Flops: ", self._total_flops)
