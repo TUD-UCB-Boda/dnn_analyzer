@@ -2,8 +2,9 @@ import typing
 
 import writer
 import parameter
-import flops
+import macs
 import disk_storage
+import memory
 import torch
 import torch.cuda
 import torch.nn as nn
@@ -118,21 +119,21 @@ class ModelAnalyse(object):
             storage = disk_storage.calculate_storage(inp_tensor, params)
             feature_list.append(storage)
 
-            ram_mem = 0  # call function for calculating RAM usage
-            feature_list.append(ram_mem)
+            inference_mem = 0  # call function for calculating RAM usage
+            feature_list.append(inference_mem)
 
             if len(inp_tensor) == 1:
-                flops_counted = flops.calculate_flops(layer, inp_tensor[0], layer_output)
+                macs_counted = macs.calculate_macs(layer, inp_tensor[0], layer_output)
             elif len(inp_tensor) > 1:
-                flops_counted = flops.calculate_flops(layer, inp_tensor, layer_output)
-            feature_list.append(flops_counted)
+                macs_counted = macs.calculate_macs(layer, inp_tensor, layer_output)
+            feature_list.append(macs_counted)
 
             self._writer._features.append(feature_list)
 
             return layer_output
 
         for layer in self._model.modules():
-            if len(list(layer.children())) == 0 and \
-                    layer.__class__ not in self._origin:
+            if layer.__class__ not in self._origin and \
+                    len(list(layer.children())) == 0:
                 self._origin[layer.__class__] = layer.__class__.__call__
                 layer.__class__.__call__ = analyse_each_layer

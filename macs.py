@@ -31,7 +31,7 @@ def calculate_macs(
     elif isinstance(layer, nn.Linear):
         return macs_linear(layer, inp, output)
     else:
-        print('Not supported for MACs calculation:', type(layer).__name__)
+        print('Not supported for Macs calculation:', type(layer).__name__)
         return 0
 
 
@@ -39,7 +39,7 @@ def macs_relu(
         layer: nn.Module, inp: torch.Tensor,
         output: torch.Tensor) -> int:
     """
-    Calculates the number of MACs required for the ReLU function.
+    Calculates the number of macs required for the ReLU function.
     Since ReLU calculates the simple function: y = max(0, x),
     it only needs to multiply each dimension of the passed input size
 
@@ -48,7 +48,7 @@ def macs_relu(
     :param output: calculated output of passed layer
     :return: number of required MAC operations
     """
-    macs_counted: int = 1
+    macs_counted = 1
     batch_size = inp.size()[0]
     for idx in inp.size()[1:]:
         macs_counted *= idx
@@ -60,12 +60,24 @@ def macs_conv2d(
         layer: nn.Module, inp: torch.Tensor,
         output: torch.Tensor) -> int:
     """
-    Calculates the number of MACs required for a convolutional function.
+    Calculates the number of macs required for a convolutional function.
     The formula is:
     K x K x Channels_in x Height_out x Weight_out x Channels_out
     For all pixels in the output feature a convolutional layer takes
     a K x K frame of input values and a dot product of the weights,
-    across all input channels
+    across all input channels. It is repeated Channels_out times since
+    the layer has channels_out different convolution kernels.
+
+    Since the number of calculation steps depends on the stride length,
+    height_out and width_out must be divided by the stride length.
+
+    The amount of macs also depends on the number of blocked connections
+    from input channels to output channels. Therefore the output channels
+    is divided by groups.
+
+    The formula measures the required macs for a batch size of one.
+    To calculate the required macs depending on the batch size, the
+    result has to be multiplied by the batch size.
 
 
     :param layer: instance of convolutional layer to be calculated
@@ -84,10 +96,9 @@ def macs_conv2d(
 
     groups = layer.groups
     channels_out = channels_out // groups
-    channels_in = channels_in // groups
 
     macs_counted = kernel_height * kernel_width * channels_in \
-                   * height_out * width_out * channels_out * groups
+                    * height_out * width_out * channels_out
 
     return macs_counted * batch_size
 
@@ -95,15 +106,56 @@ def macs_conv2d(
 def macs_pooling(
         layer: nn.Module, inp: torch.Tensor,
         output: torch.Tensor) -> int:
-    batch_size = inp.size()[0]
-    return int(np.prod(inp.shape)) * batch_size
+    """
+    Calculates the number of macs required for pooling layers.
+    Since their function is to gradually reduce the spatial
+    size of the representation by operating independently on
+    each feature map, each element in each channel of the feature
+    map is compared separately with the other elements within
+    the filter.
+    This leads to the following formula:
+    macs = batch_size * inp_channels * inp_width * inp_height
+
+    Since the number of macs required for pooling layers are
+    relatively low, it hardly makes any noticeable difference
+    to the total number of macs.
+
+    :param layer: instance of pooling layer to be calculated
+    :param inp: tensor serving as input for pooling functions
+    :param output: calculated output of passed layer
+    :return: number of required MAC operations
+    """
+
+    return int(np.prod(inp.shape))
 
 
 def macs_batchnorm(
         layer: nn.Module, inp: torch.Tensor,
         output: torch.Tensor) -> int:
+    """
+    Calculates the number of macs required for a batch
+    normalization function.
+
+    In batch normalization, each value of the given input is
+    normalized separately within one mac.
+
+    This leads to the following formula:
+    macs = batch_size * inp_channels * inp_width * inp_height
+
+    If affine is enabled (True), the layer has learnable affine
+    parameters: Mean and Variance.
+    In this case, the mean and variance parameters are updated
+    in each step within one macs, resulting in twice as many
+    macs as without affine enabled.
+
+    :param layer: instance of batch norm layer to be calculated
+    :param inp: tensor serving as input for batch norm functions
+    :param output: calculated output of passed layer
+    :return: number of required MAC operations
+    """
     batch_size = inp.size()[0]
     macs_counted = np.prod(inp[0].shape)
+
     if layer.affine:
         macs_counted *= 2
 
@@ -113,6 +165,24 @@ def macs_batchnorm(
 def macs_linear(
         layer: nn.Module, inp: torch.Tensor,
         output: torch.Tensor) -> int:
+    """
+    Calculates the number of macs required for a linear
+    function.
+
+    In linear layers each input node is connected to each
+    output node.
+    This leads to number of connections = input * output.
+    Since each output is calculated by the simple formula:
+    y = w * x, each calculation requires exactly one Mac.
+
+    So the total number of macs is input * output * 1.
+
+    :param layer: instance of linear layer to be calculated
+    :param inp: tensor serving as input for linear functions
+    :param output: calculated output of passed layer
+    :return: number of required MAC operations
+    """
+
     batch_size = inp.size()[0]
     macs_counted = inp.size()[1] * output.size()[1]
 
