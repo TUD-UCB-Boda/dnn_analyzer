@@ -2,7 +2,7 @@ import typing
 
 import writer
 import parameter
-import flops
+import macs
 import disk_storage
 import torch
 import torch.cuda
@@ -122,10 +122,10 @@ class ModelAnalyse(object):
             feature_list.append(ram_mem)
 
             if len(inp_tensor) == 1:
-                flops_counted = flops.calculate_flops(layer, inp_tensor[0], layer_output)
+                macs_counted = macs.calculate_macs(layer, inp_tensor[0], layer_output)
             elif len(inp_tensor) > 1:
-                flops_counted = flops.calculate_flops(layer, inp_tensor, layer_output)
-            feature_list.append(flops_counted)
+                macs_counted = macs.calculate_macs(layer, inp_tensor, layer_output)
+            feature_list.append(macs_counted)
 
             self._writer._features.append(feature_list)
 
