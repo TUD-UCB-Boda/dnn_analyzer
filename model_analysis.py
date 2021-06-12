@@ -1,10 +1,9 @@
-import typing
-
 import writer
 import parameter
 import macs
 import disk_storage
 import memory
+import memory_read_and_write
 import torch
 import torch.cuda
 import torch.nn as nn
@@ -102,6 +101,7 @@ class ModelAnalyse(object):
             assert layer.__class__ in self._origin
 
             feature_list = [type(layer).__name__]
+
             start = torch.cuda.Event(enable_timing=True)
             end = torch.cuda.Event(enable_timing=True)
 
@@ -116,10 +116,18 @@ class ModelAnalyse(object):
             params = parameter.count_parameters(layer)
             feature_list.append(params)
 
+            if len(inp_tensor) == 1:
+                mem_read, mem_write = memory_read_and_write.read_write(layer, params, inp_tensor[0], layer_output)
+            elif len(inp_tensor) > 1:
+                mem_read, mem_write = memory_read_and_write.read_write(layer, params, inp_tensor, layer_output)
+
+            feature_list.append(mem_read)
+            feature_list.append(mem_write)
+
             storage = disk_storage.calculate_storage(inp_tensor, params)
             feature_list.append(storage)
 
-            inference_mem = 0  # call function for calculating RAM usage
+            inference_mem = memory.inference_memory(layer_output)
             feature_list.append(inference_mem)
 
             if len(inp_tensor) == 1:

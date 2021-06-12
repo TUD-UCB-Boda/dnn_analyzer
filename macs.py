@@ -15,7 +15,7 @@ def calculate_macs(
     :param output: calculated output of passed layer
     :return: number of required MAC operations
     """
-    if isinstance(layer, (nn.ReLU6, nn.ReLU)):
+    if isinstance(layer, (nn.ReLU6, nn.ReLU, nn.PReLU, nn.LeakyReLU)):
         return macs_relu(layer, inp, output)
     elif isinstance(layer, nn.Conv2d):
         return macs_conv2d(layer, inp, output)
@@ -27,7 +27,7 @@ def calculate_macs(
                     nn.AdaptiveMaxPool3d, nn.AdaptiveAvgPool3d)):
         return macs_pooling(layer, inp, output)
     elif isinstance(layer, (nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d)):
-        return macs_batchnorm(layer, inp, output)
+        return macs_batch_norm(layer, inp, output)
     elif isinstance(layer, nn.Linear):
         return macs_linear(layer, inp, output)
     else:
@@ -48,6 +48,7 @@ def macs_relu(
     :param output: calculated output of passed layer
     :return: number of required MAC operations
     """
+
     macs_counted = 1
     batch_size = inp.size()[0]
     for idx in inp.size()[1:]:
@@ -98,7 +99,7 @@ def macs_conv2d(
     channels_out = channels_out // groups
 
     macs_counted = kernel_height * kernel_width * channels_in \
-                    * height_out * width_out * channels_out
+                   * height_out * width_out * channels_out
 
     return macs_counted * batch_size
 
@@ -129,7 +130,7 @@ def macs_pooling(
     return int(np.prod(inp.shape))
 
 
-def macs_batchnorm(
+def macs_batch_norm(
         layer: nn.Module, inp: torch.Tensor,
         output: torch.Tensor) -> int:
     """
