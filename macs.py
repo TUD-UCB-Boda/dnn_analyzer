@@ -39,7 +39,7 @@ def macs_relu(
         layer: nn.Module, inp: torch.Tensor,
         output: torch.Tensor) -> int:
     """
-    Calculates the number of MACs required for the ReLU function.
+    Calculates the number of macs required for the ReLU function.
     Since ReLU calculates the simple function: y = max(0, x),
     it only needs to multiply each dimension of the passed input size
 
@@ -48,7 +48,6 @@ def macs_relu(
     :param output: calculated output of passed layer
     :return: number of required MAC operations
     """
-
     macs_counted = 1
     batch_size = inp.size()[0]
     for idx in inp.size()[1:]:
@@ -101,6 +100,7 @@ def macs_conv2d(
     macs_counted = kernel_height * kernel_width * channels_in \
                    * height_out * width_out * channels_out
 
+
     return macs_counted * batch_size
 
 
@@ -126,7 +126,6 @@ def macs_pooling(
     :param output: calculated output of passed layer
     :return: number of required MAC operations
     """
-
     return int(np.prod(inp.shape))
 
 
@@ -177,6 +176,7 @@ def macs_linear(
     y = w * x, each calculation requires exactly one MAC.
 
     So the total number of MACs is input * output * 1.
+
 
     :param layer: instance of linear layer to be calculated
     :param inp: tensor serving as input for linear functions
