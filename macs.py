@@ -87,7 +87,7 @@ def macs_conv2d(
     :return: number of required MAC operations
     """
     batch_size = inp.size()[0]
-    kernel_height, kernel_width = layer.kernel_size
+    kernels = list(layer.kernel_size)
     channels_in = inp.size()[1]
     channels_out, height_out, width_out = output.size()[1:]
 
@@ -98,9 +98,8 @@ def macs_conv2d(
     groups = layer.groups
     channels_out = channels_out // groups
 
-    macs_counted = kernel_height * kernel_width * channels_in \
+    macs_counted = int(np.prod(kernels)) * channels_in \
                    * height_out * width_out * channels_out
-
     return macs_counted * batch_size
 
 
