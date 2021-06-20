@@ -17,7 +17,7 @@ def calculate_macs(
     """
     if isinstance(layer, (nn.ReLU6, nn.ReLU, nn.PReLU, nn.LeakyReLU)):
         return macs_relu(layer, inp, output)
-    elif isinstance(layer, nn.Conv2d):
+    elif isinstance(layer, nn.Conv1d, nn.Conv2d, nn.Conv3d):
         return macs_conv2d(layer, inp, output)
     elif isinstance(
             layer, (nn.MaxPool1d, nn.AvgPool1d, nn.AvgPool2d,
