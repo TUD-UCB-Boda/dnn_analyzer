@@ -1,7 +1,7 @@
 # DNN analyzer
 
 Deep neural networks often consume a lot of computating power and memory, making them quite challenging to be deployed on edge devices.
-In this project, we aim to develop a **lightweight neural network analyzer based on PyTorch** to predict the computational requirements of a DNN.
+Our **lightweight neural network analyzer based on PyTorch** predicts the computational requirements of a given DNN.
 
 ---
 ## Extracted Features
@@ -71,6 +71,19 @@ Total Memory Read + Write:  162.19 MB
 * AdaptiveMaxPool1d, AdaptiveMaxPool2d, AdaptiveMaxPool3d, AdaptiveAvgPool1d, AdaptiveAvgPool2d, AdaptiveAvgPool3d
 * BatchNorm1d, BatchNorm2d, BatchNorm3d
 * Linear
+
+---
+## Formulas used for calculations (not finished yet)
+
+| Layer        | Computation | #parameters  | memory read | memory write | inference memory | disk storage |
+| ------------- |:-------------:| -----:| -----:| -----:| -----:| -----:|
+| FC      |   I × J | (I + 1) × J  | Cin x Hin x Win x bpe* | (*if PReLU:* #params x ) Cin x Hin x Win x bpe* | [1*] | [2*] |
+| conv      | K × K × Cin × (Hout / stride_y) × (Wout / stride_x) × (Cout / groups)  |   K × K × Cin × Cout | #params + Cout x Hout x Wout x bpe* | Cout x Hout x Wout x bpe* | [1*] | [2*] |
+| pool   |   Cin x Hin x Win | (I + 1) × J  | Cin x Hin x Win x bpe* | Cout x Hout x Wout x bpe* | [1*] | [2*] |
+| bn   |   Cin x Hin x Win ( x 2 *if learnable affine params*) | (I + 1) × J  | 2 * Cin + Cout x Hout x Wout x bpe* | Cout x Hout x Wout x bpe* | [1*] | [2*] |
+| linear   |   inp x out | (I + 1) × J  | #params + Cout x Hout x Wout x bpe* | Cout x Hout x Wout x bpe*  | [1*] | [2*] |
+
+bpe*: bytes per element,  [1*]: *Cout x Hout x Wout x bytes_per_elem*,  [2*]: *#params x bytes_per_param*
 
 ---
 ## Requirements
