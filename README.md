@@ -77,7 +77,7 @@ Total Memory Read + Write:  162.19 MB
 
 | Layer        | Computation | #parameters  | memory read | memory write | inference memory | disk storage |
 | ------------- |:-------------:| -----:| -----:| -----:| -----:| -----:|
-| FC      |   I × J | (I + 1) × J  | Cin x Hin x Win x bpe* | (*if PReLU:* #params x ) Cin x Hin x Win x bpe* | [1*] | [2*] |
+| FC      |  Cin x Hin x Win | (I + 1) × J  | Cin x Hin x Win x bpe* | (*if PReLU:* #params x ) Cin x Hin x Win x bpe* | [1*] | [2*] |
 | conv      | K × K × Cin × (Hout / stride_y) × (Wout / stride_x) × (Cout / groups)  |   K × K × Cin × Cout | #params + Cout x Hout x Wout x bpe* | Cout x Hout x Wout x bpe* | [1*] | [2*] |
 | pool   |   Cin x Hin x Win | (I + 1) × J  | Cin x Hin x Win x bpe* | Cout x Hout x Wout x bpe* | [1*] | [2*] |
 | bn   |   Cin x Hin x Win ( x 2 *if learnable affine params*) | (I + 1) × J  | 2 * Cin + Cout x Hout x Wout x bpe* | Cout x Hout x Wout x bpe* | [1*] | [2*] |
