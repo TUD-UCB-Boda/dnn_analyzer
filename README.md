@@ -73,15 +73,15 @@ Total Memory Read + Write:  162.19 MB
 * Linear
 
 ---
-## Formulas used for calculations (not finished yet)
+## Formulas
 
 | Layer        | Computation | #parameters  | memory read | memory write | inference memory | disk storage |
 | ------------- |:-------------:| -----:| -----:| -----:| -----:| -----:|
-| FC      |  Cin x Hin x Win | (I + 1) × J  | Cin x Hin x Win x bpe* | (*if PReLU:* #params x ) Cin x Hin x Win x bpe* | [1*] | [2*] |
+| FC      |   I x J | (I + 1) × J  | #params + Cout x Hout x Wout x bpe* | Cout x Hout x Wout x bpe*  | [1*] | [2*] |
 | conv      | K × K × Cin × (Hout / stride_y) × (Wout / stride_x) × (Cout / groups)  |   K × K × Cin × Cout | #params + Cout x Hout x Wout x bpe* | Cout x Hout x Wout x bpe* | [1*] | [2*] |
-| pool   |   Cin x Hin x Win | (I + 1) × J  | Cin x Hin x Win x bpe* | Cout x Hout x Wout x bpe* | [1*] | [2*] |
-| bn   |   Cin x Hin x Win ( x 2 *if learnable affine params*) | (I + 1) × J  | 2 * Cin + Cout x Hout x Wout x bpe* | Cout x Hout x Wout x bpe* | [1*] | [2*] |
-| linear   |   inp x out | (I + 1) × J  | #params + Cout x Hout x Wout x bpe* | Cout x Hout x Wout x bpe*  | [1*] | [2*] |
+| pool   |   Cin x Hin x Win | 0  | Cin x Hin x Win x bpe* | Cout x Hout x Wout x bpe* | [1*] | [2*] |
+| bn   |   Cin x Hin x Win ( x 2 *if learnable affine params*) | inp.dims * Cin  | 2 * Cin + Cout x Hout x Wout x bpe* | Cout x Hout x Wout x bpe* | [1*] | [2*] |
+| relu |  Cin * Hin * Win | (*if PReLU:* Cin * Hin * Win ) *otherwise:* 0 | Cin x Hin x Win x bpe* | (*if PReLU:* #params x ) Cin x Hin x Win x bpe* | [1*] | [2*] |
 
 bpe*: bytes per element,  [1*]: *Cout x Hout x Wout x bytes_per_elem*,  [2*]: *#params x bytes_per_param*
 
