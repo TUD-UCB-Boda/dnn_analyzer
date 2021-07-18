@@ -88,10 +88,10 @@ bpe*: bytes per element,  [1*]: *Cout x Hout x Wout x bytes_per_elem*,  [2*]: *#
 ---
 ## Requirements
 
-* tabulate > 0.8.0
-* python > 3.6
-* pytorch > 0.4.0
-* NumPy > 1.14.3
+* tabulate ~= 0.8.9
+* python ~= 3.6
+* torch ~= 1.8.1 + cu111
+* NumPy ~= 1.20.3
 
 ---
 ## Authors
