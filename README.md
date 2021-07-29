@@ -16,8 +16,15 @@ Our **lightweight neural network analyzer based on PyTorch** predicts the comput
 ---
 ## How to use
 
+### Python-Fire:
+If the dnn exists as a script, it is possible to run the dnn analyzer via pytorch-fire:
+```bash
+$ python runner.py --file=example_net.py --model=ExampleNetV2 --input=[3, 224, 224] --batch=3
+```
+Specifying values for input and batch size is optional. 
+
+### Running the analyzer by importing it as a module
 * Download the the DNN analyzer and unzip the folder
-* Place the Python file that calls the analyzer in the folder dnn_analyzer
 * The calling file must import the model_analysis file as below
 * Start the analysis process by creating a new instance of ModelAnalyse passing the model to analyze and the input shape:
   model_analysis.ModelAnalyse(model, ([CHANNELS], [HEIGHT], [WIDTH]))
@@ -92,6 +99,7 @@ bpe*: bytes per element,  [1*]: *Cout x Hout x Wout x bytes_per_elem*,  [2*]: *#
 * python ~= 3.6
 * torch ~= 1.8.1 + cu111
 * NumPy ~= 1.20.3
+* python-fire ~= 0.4.0
 
 ---
 ## Authors
