@@ -19,15 +19,15 @@ Our **lightweight neural network analyzer based on PyTorch** predicts the comput
 ### Python-Fire:
 If the dnn exists as a script, it is possible to run the dnn analyzer via pytorch-fire:
 ```bash
-$ python runner.py --file=example_net.py --model=ExampleNetV2 --input=[3, 224, 224] --batch=3
+$ python runner.py --file=example_net.py --model=ExampleNetV2 --input=[3, 224, 224] --batch=1
 ```
-Specifying values for input and batch size is optional. 
+Specifying values for input and batch size is optional. Default is input=[3, 224, 224], batch=1.
 
 ### Running the analyzer by importing it as a module
 * Download the the DNN analyzer and unzip the folder
 * The calling file must import the model_analysis file as below
-* Start the analysis process by creating a new instance of ModelAnalyse passing the model to analyze and the input shape:
-  model_analysis.ModelAnalyse(model, ([CHANNELS], [HEIGHT], [WIDTH]))
+* Start the analysis process by creating a new instance of ModelAnalyse passing the model to analyze, the input shape and batch size:
+  model_analysis.ModelAnalyse(model, ([CHANNELS], [HEIGHT], [WIDTH]), [BATCH_SIZE])
 
 ---
 ## Example
