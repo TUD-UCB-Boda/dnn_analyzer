@@ -109,7 +109,6 @@ class ModelAnalyse(object):
             layer_output = self._origin[layer.__class__](
                 layer, *inp_tensor, **vars)
 
-            torch.cuda.synchronize()
             end.record()
 
             torch.cuda.synchronize()
