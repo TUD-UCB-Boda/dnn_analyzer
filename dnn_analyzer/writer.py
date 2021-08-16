@@ -1,5 +1,5 @@
 from typing import List, Any
-import utils
+from dnn_analyzer import utils
 from tabulate import tabulate
 
 
@@ -46,7 +46,6 @@ class Writer:
         self._total_memory = utils.round_units(self._total_memory, "B")
         self._total_readwrite = utils.round_units(self._total_readwrite, "B")
         self._total_macs = utils.round_units(self._total_macs, "MAC", True)
-
 
     def duration_ratio(self) -> None:
         """

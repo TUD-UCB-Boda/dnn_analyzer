@@ -1,8 +1,4 @@
-import writer
-import parameter
-import macs
-import disk_storage
-import memory
+from dnn_analyzer import writer, parameter, macs, disk_storage, memory
 import torch
 import torch.cuda
 import torch.nn as nn
@@ -32,10 +28,14 @@ class ModelAnalyse(object):
 
     def __init__(
             self, model: nn.Module,
-            inp_size: Tuple[int, int, int]) -> None:
+            inp_size: Tuple[int, int, int], batch_size=1) -> None:
         """
         Inits model for analysis and creates object of Writer class.
         Then it calls the analyse method
+
+        :param model: passed model to analyze
+        :param inp_size: dimensions of input tensor
+        :param batch_size: batch size for analysis process
         """
         assert isinstance(model, nn.Module)
         assert isinstance(inp_size, (list, tuple))
@@ -46,6 +46,7 @@ class ModelAnalyse(object):
         self._model: nn.Module = model
         self._inp_size: Tuple[int, int, int] = inp_size
         self._writer: writer.Writer = writer.Writer()
+        self._batch_size = batch_size
 
         self.analyse()
 
@@ -57,7 +58,8 @@ class ModelAnalyse(object):
 
         self._modify_submodules()
 
-        rand_input = torch.rand(1, *self._inp_size)
+        rand_input = torch.rand(self._batch_size, *self._inp_size)
+
         self._model.eval()
         self._model(rand_input)
         self._writer.printout()
